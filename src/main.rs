@@ -1,7 +1,7 @@
 mod hmap;
 
-const MAP_WIDTH: usize = 400;
-const MAP_HEIGHT: usize = 400;
+const MAP_WIDTH: usize = 1000;
+const MAP_HEIGHT: usize = 1000;
 const IMAGE_FILE: &str = "heightmap.png";
 
 fn main() {
