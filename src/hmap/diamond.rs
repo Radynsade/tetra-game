@@ -3,16 +3,6 @@
 
 use std::cmp;
 
-/// Faster average with fixed amount of elements.
-fn count_average(
-	num1: f64,
-	num2: f64,
-	num3: f64,
-	num4: f64
-) -> f64 {
-	(num1 + num2 + num3 + num4) / 4.0
-}
-
 /// Cut map to specified size.
 fn clip(
 	map: Vec<Vec<f64>>,
@@ -70,18 +60,41 @@ fn set_height(
 /// height of it's middle-point.
 fn square(
 	map: &mut Vec<Vec<f64>>,
+	map_size: usize,
 	x: usize,
 	y: usize,
 	chunk: usize,
 	half_chunk: usize,
 	noise: f64
 ) {
-	let average = count_average(
-		map[x - half_chunk][y - half_chunk], // left-top
-		map[x - half_chunk][y + half_chunk], // left-bottom
-		map[x + half_chunk][y - half_chunk], // right-top
-		map[x + half_chunk][y + half_chunk] // right-bottom
-	);
+	let mut num: usize = 0;
+	let mut sum: f64 = 0.0;
+
+	if 0 <= x as i32 - half_chunk as i32 {
+		if 0 <= y as i32 - half_chunk as i32 {
+			sum += map[x - half_chunk][y - half_chunk];
+			num += 1;
+		}
+
+		if y + half_chunk <= map_size {
+			sum += map[x - half_chunk][y + half_chunk];
+			num += 1;
+		}
+	}
+
+	if x + half_chunk <= map_size {
+		if 0 <= y as i32 - half_chunk as i32 {
+			sum += map[x + half_chunk][y - half_chunk];
+			num += 1;
+		}
+
+		if y + half_chunk <= map_size {
+			sum += map[x + half_chunk][y + half_chunk];
+			num += 1;
+		}
+	}
+
+	let average = sum / num as f64;
 
 	set_height(map, x, y, chunk, average, noise);
 }
@@ -97,17 +110,31 @@ fn diamond(
 	half_chunk: usize,
 	noise: f64
 ) {
-	let left = if x as i32 - half_chunk as i32 <= 0 { 0.0 } else { map[x - half_chunk][y] };
-	let right = if x as i32 + half_chunk as i32 > map_size as i32 { 0.0 } else { map[x + half_chunk][y] };
-	let top = if y as i32 - half_chunk as i32 <= 0 { 0.0 } else { map[x][y - half_chunk] };
-	let bottom = if y as i32 + half_chunk as i32 > map_size as i32 { 0.0 } else { map[x][y + half_chunk] };
+	let mut num: usize = 0;
+	let mut sum: f64 = 0.0;
 
-	let average = count_average(
-		left,
-		right,
-		top,
-		bottom
-	);
+	if 0 <= x as i32 - half_chunk as i32 {
+		sum += map[x - half_chunk][y];
+		num += 1;
+	};
+
+	if x as i32 + half_chunk as i32 <= map_size as i32 {
+		sum += map[x + half_chunk][y];
+		num += 1;
+	};
+
+	if 0 <= y as i32 - half_chunk as i32 {
+		sum += map[x][y - half_chunk];
+		num += 1;
+	};
+
+
+	if y as i32 + half_chunk as i32 <= map_size as i32 {
+		sum += map[x][y + half_chunk];
+		num += 1;
+	};
+
+	let average = sum / num as f64;
 
 	set_height(map, x, y, chunk, average, noise);
 }
@@ -117,25 +144,48 @@ fn diamond_square(map_size: usize) -> Vec<Vec<f64>> {
 	let mut map: Vec<Vec<f64>> = vec![vec![0.0; map_size]; map_size];
 	let mut chunk: usize = max_index >> 1;
 	let mut half_chunk: usize = chunk >> 1;
+	let mut x: usize;
+	let mut y: usize;
+
 
 	while 1 <= chunk {
-		println!("chunk: {}", chunk);
+		x = half_chunk;
 
-		for x in (half_chunk..map_size).step_by(chunk) {
-			for y in (half_chunk..map_size).step_by(chunk) {
-				square(&mut map, x ,y, chunk, half_chunk, 1.0);
+		loop {
+			y = half_chunk;
+
+			loop {
+				square(&mut map, map_size, x ,y, chunk, half_chunk, 30.0);
+
+				y += chunk;
+
+				if y >= map_size {
+					break;
+				}
+			}
+
+			x += chunk;
+
+			if x >= map_size {
+				break;
 			}
 		}
 
+		// for x in (half_chunk..map_size).step_by(chunk) {
+		// 	for y in (half_chunk..map_size).step_by(chunk) {
+		// 		square(&mut map, map_size, x ,y, chunk, half_chunk, 30.0);
+		// 	}
+		// }
+
 		for x in (0..max_index).step_by(chunk) {
 			for y in (half_chunk..max_index).step_by(chunk) {
-				diamond(&mut map, map_size, x, y, chunk, half_chunk, 10.0);
+				diamond(&mut map, map_size, x, y, chunk, half_chunk, 20.0);
 			}
 		}
 
 		for x in (chunk..max_index).step_by(chunk) {
 			for y in (0..max_index).step_by(chunk) {
-				diamond(&mut map, map_size, x, y, chunk, half_chunk, 10.0);
+				diamond(&mut map, map_size, x, y, chunk, half_chunk, 20.0);
 			}
 		}
 
