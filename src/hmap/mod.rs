@@ -15,9 +15,6 @@ pub struct HeightMap {
 	height: usize
 }
 
-// Colorized output
-// Min color: 110;
-
 impl HeightMap {
 	pub fn as_image(&self) -> image::ImageBuffer<image::Rgb<u8>, Vec<u8>> {
 		let mut image = image::RgbImage::new(
@@ -76,13 +73,52 @@ impl HeightMap {
 	}
 
 	pub fn print(&self) {
-		let mut height: u8;
+		let mut height: f64;
+		let mut blue: u8;
+		let mut green: u8;
+		let mut red: u8;
 
 		for x in 0..self.width {
 			for y in 0..self.height {
-				height = (self.matrix[x][y] * 255.0) as u8;
+				height = self.matrix[x as usize][y as usize] * MAX_HEIGHT;
 
-				print!("{}", "██".truecolor(height, height, height));
+				blue = if height > MAX_COLOR {
+					if height / MAX_COLOR >= 2.0 {
+						0
+					} else {
+						255 - ((height % MAX_COLOR) as u8)
+					}
+				} else {
+					height as u8
+				};
+
+				height -= MAX_COLOR;
+				if height < 0.0 { height = 0.0 };
+
+				green = if height > MAX_COLOR {
+					if height / MAX_COLOR >= 2.0 {
+						0
+					} else {
+						255 - ((height % MAX_COLOR) as u8)
+					}
+				} else {
+					height as u8
+				};
+
+				height -= MAX_COLOR;
+				if height < 0.0 { height = 0.0 };
+
+				red = if height > MAX_COLOR {
+					if height / MAX_COLOR >= 2.0 {
+						0
+					} else {
+						255 - ((height % MAX_COLOR) as u8)
+					}
+				} else {
+					height as u8
+				};
+
+				print!("{}", "██".truecolor(red, green, blue));
 			}
 
 			println!("");
