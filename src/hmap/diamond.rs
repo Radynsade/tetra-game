@@ -48,10 +48,10 @@ fn set_height(
 	x: usize,
 	y: usize,
 	average: f64,
-	ratio: f64
+	scale: f64
 ) {
 	let random = rand::random::<f64>() - 0.5;
-	let height = average + random * ratio as f64;
+	let height = average + random * scale as f64;
 
 	map[x][y] = if height <= 1.0 && height >= 0.0 {
 		height
@@ -69,7 +69,7 @@ fn square(
 	y: usize,
 	_: usize,
 	half_chunk: usize,
-	noise: f64
+	scale: f64
 ) {
 	let mut num: usize = 0;
 	let mut sum: f64 = 0.0;
@@ -100,7 +100,7 @@ fn square(
 
 	let average = sum / num as f64;
 
-	set_height(map, x, y, average, noise);
+	set_height(map, x, y, average, scale);
 }
 
 /// Get average height of diamon corners and set
@@ -110,9 +110,8 @@ fn diamond(
 	max_index: usize,
 	x: usize,
 	y: usize,
-	chunk: usize,
 	half_chunk: usize,
-	noise: f64
+	scale: f64
 ) {
 	let mut num: usize = 0;
 	let mut sum: f64 = 0.0;
@@ -139,7 +138,7 @@ fn diamond(
 
 	let average = sum / num as f64;
 
-	set_height(map, x, y, average, noise);
+	set_height(map, x, y, average, scale);
 }
 
 fn diamond_square(map_size: usize) -> Vec<Vec<f64>> {
@@ -148,18 +147,18 @@ fn diamond_square(map_size: usize) -> Vec<Vec<f64>> {
 	let mut map: Vec<Vec<f64>> = vec![vec![std::f64::NAN; map_size]; map_size];
 	let mut chunk: usize = max_index >> 1;
 	let mut half_chunk: usize = chunk >> 1;
-	let mut noise: f64 = 1.0;
+	let mut scale: f64 = 1.0;
 
 	map[0][0] = 0.5;
 	map[max_index][0] = 0.5;
 	map[0][max_index] = 0.5;
 	map[max_index][max_index] = 0.5;
 
-	square(&mut map, max_index, center, center, max_index, chunk, noise);
-	diamond(&mut map, max_index, 0, center, max_index, chunk, noise);
-	diamond(&mut map, max_index, max_index, center, max_index, chunk, noise);
-	diamond(&mut map, max_index, center, 0, max_index, chunk, noise);
-	diamond(&mut map, max_index, center, max_index, max_index, chunk, noise);
+	square(&mut map, max_index, center, center, max_index, chunk, scale);
+	diamond(&mut map, max_index, 0, center, chunk, scale);
+	diamond(&mut map, max_index, max_index, center, chunk, scale);
+	diamond(&mut map, max_index, center, 0, chunk, scale);
+	diamond(&mut map, max_index, center, max_index, chunk, scale);
 
 	while 1 <= chunk {
 		for x in (half_chunk..map_size).step_by(chunk) {
@@ -172,7 +171,7 @@ fn diamond_square(map_size: usize) -> Vec<Vec<f64>> {
 						y,
 						chunk,
 						half_chunk,
-						noise
+						scale
 					);
 
 					diamond(
@@ -180,9 +179,8 @@ fn diamond_square(map_size: usize) -> Vec<Vec<f64>> {
 						max_index,
 						x + half_chunk,
 						y,
-						chunk,
 						half_chunk,
-						noise
+						scale
 					);
 
 					diamond(
@@ -190,9 +188,8 @@ fn diamond_square(map_size: usize) -> Vec<Vec<f64>> {
 						max_index,
 						x - half_chunk,
 						y,
-						chunk,
 						half_chunk,
-						noise
+						scale
 					);
 
 					diamond(
@@ -200,9 +197,8 @@ fn diamond_square(map_size: usize) -> Vec<Vec<f64>> {
 						max_index,
 						x,
 						y + half_chunk,
-						chunk,
 						half_chunk,
-						noise
+						scale
 					);
 
 					diamond(
@@ -210,9 +206,8 @@ fn diamond_square(map_size: usize) -> Vec<Vec<f64>> {
 						max_index,
 						x,
 						y - half_chunk,
-						chunk,
 						half_chunk,
-						noise
+						scale
 					);
 				}
 
@@ -221,7 +216,7 @@ fn diamond_square(map_size: usize) -> Vec<Vec<f64>> {
 
 		chunk >>= 1;
 		half_chunk >>= 1;
-		noise /= 2.0;
+		scale /= 2.0;
 	}
 
 	map

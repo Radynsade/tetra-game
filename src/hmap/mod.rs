@@ -4,6 +4,9 @@ use colored::*;
 mod diamond;
 mod perlin;
 
+const MAX_HEIGHT: f64 = 765.0;
+const MAX_COLOR: f64 = 255.0;
+
 pub struct HeightMap {
 	matrix: Vec<Vec<f64>>,
 	width: usize,
@@ -17,12 +20,32 @@ impl HeightMap {
 			self.height as u32
 		);
 
-		let mut height: u8;
+		let mut height: f64;
+		let mut blue: u8;
+		let mut green: u8;
+		let mut red: u8;
 
 		for (x, y, pixel) in image.enumerate_pixels_mut() {
-			height = (self.matrix[x as usize][y as usize] * 255.0) as u8;
+			height = self.matrix[x as usize][y as usize] * MAX_HEIGHT;
 
-			*pixel = image::Rgb([height, height, height]);
+			blue = if height > MAX_COLOR {
+				255
+			} else {
+				height as u8
+			};
+			height -= MAX_COLOR;
+
+			green = if height > MAX_COLOR {
+				255
+			} else {
+				height as u8
+			};
+			height -= MAX_COLOR;
+			if height < 0.0 { height = 0.0 };
+
+			red = height as u8;
+
+			*pixel = image::Rgb([red, green, blue]);
 		}
 
 		image
