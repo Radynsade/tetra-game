@@ -20,7 +20,7 @@ impl HeightMap {
 		let mut height: u8;
 
 		for (x, y, pixel) in image.enumerate_pixels_mut() {
-			height = self.matrix[x as usize][y as usize] as u8;
+			height = (self.matrix[x as usize][y as usize] * 255.0) as u8;
 
 			*pixel = image::Rgb([height, height, height]);
 		}
@@ -33,7 +33,7 @@ impl HeightMap {
 
 		for x in 0..self.width {
 			for y in 0..self.height {
-				height = self.matrix[x][y] as u8;
+				height = (self.matrix[x][y] * 255.0) as u8;
 
 				print!("{}", "██".truecolor(height, height, height));
 			}

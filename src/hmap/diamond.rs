@@ -3,8 +3,6 @@
 
 use std::cmp;
 
-const MAX_HEIGHT: f64 = 255.0;
-
 /// Cut map to specified size.
 fn clip(
 	map: Vec<Vec<f64>>,
@@ -13,7 +11,7 @@ fn clip(
 ) -> Vec<Vec<f64>> {
 	let mut clipped_map: Vec<Vec<f64>> = vec![
 		vec![
-			0.0;
+			std::f64::NAN;
 			height
 		];
 		width
@@ -44,39 +42,35 @@ fn get_suitable_size(
 	}
 }
 
-fn normalize(num: f64, max: f64) -> f64 {
-	num / max
-}
-
 /// Set new height to the point.
 fn set_height(
 	map: &mut Vec<Vec<f64>>,
 	x: usize,
 	y: usize,
-	chunk: usize,
 	average: f64,
-	_: f64
+	ratio: f64
 ) {
 	let random = rand::random::<f64>() - 0.5;
+	let height = average + random * ratio as f64;
 
-	map[x][y] = average + random * chunk as f64;
+	map[x][y] = if height <= 1.0 && height >= 0.0 {
+		height
+	} else {
+		if height > 1.0 { 1.0 } else { 0.0 }
+	}
 }
 
 /// Get average height of square corners and set
 /// height of it's middle-point.
 fn square(
 	map: &mut Vec<Vec<f64>>,
-	map_size: usize,
+	max_index: usize,
 	x: usize,
 	y: usize,
-	chunk: usize,
+	_: usize,
 	half_chunk: usize,
 	noise: f64
 ) {
-	if map[x][y] != 0.0 {
-		return;
-	}
-
 	let mut num: usize = 0;
 	let mut sum: f64 = 0.0;
 
@@ -86,19 +80,19 @@ fn square(
 			num += 1;
 		}
 
-		if y + half_chunk <= map_size {
+		if y + half_chunk <= max_index {
 			sum += map[x - half_chunk][y + half_chunk];
 			num += 1;
 		}
 	}
 
-	if x + half_chunk <= map_size {
+	if x + half_chunk <= max_index {
 		if 0 <= y as i32 - half_chunk as i32 {
 			sum += map[x + half_chunk][y - half_chunk];
 			num += 1;
 		}
 
-		if y + half_chunk <= map_size {
+		if y + half_chunk <= max_index {
 			sum += map[x + half_chunk][y + half_chunk];
 			num += 1;
 		}
@@ -106,24 +100,20 @@ fn square(
 
 	let average = sum / num as f64;
 
-	set_height(map, x, y, chunk, average, noise);
+	set_height(map, x, y, average, noise);
 }
 
 /// Get average height of diamon corners and set
 /// height of it's middle-point.
 fn diamond(
 	map: &mut Vec<Vec<f64>>,
-	map_size: usize,
+	max_index: usize,
 	x: usize,
 	y: usize,
 	chunk: usize,
 	half_chunk: usize,
 	noise: f64
 ) {
-	if map[x][y] != 0.0 {
-		return;
-	}
-
 	let mut num: usize = 0;
 	let mut sum: f64 = 0.0;
 
@@ -132,7 +122,7 @@ fn diamond(
 		num += 1;
 	};
 
-	if x as i32 + half_chunk as i32 <= map_size as i32 {
+	if x as i32 + half_chunk as i32 <= max_index as i32 {
 		sum += map[x + half_chunk][y];
 		num += 1;
 	};
@@ -142,57 +132,96 @@ fn diamond(
 		num += 1;
 	};
 
-
-	if y as i32 + half_chunk as i32 <= map_size as i32 {
+	if y as i32 + half_chunk as i32 <= max_index as i32 {
 		sum += map[x][y + half_chunk];
 		num += 1;
 	};
 
 	let average = sum / num as f64;
 
-	set_height(map, x, y, chunk, average, noise);
+	set_height(map, x, y, average, noise);
 }
 
 fn diamond_square(map_size: usize) -> Vec<Vec<f64>> {
 	let max_index = map_size - 1;
-	let half_height = MAX_HEIGHT / 2.0;
-	let mut map: Vec<Vec<f64>> = vec![vec![0.0; map_size]; map_size];
+	let center = max_index >> 1;
+	let mut map: Vec<Vec<f64>> = vec![vec![std::f64::NAN; map_size]; map_size];
 	let mut chunk: usize = max_index >> 1;
 	let mut half_chunk: usize = chunk >> 1;
-	let mut first = false;
+	let mut noise: f64 = 1.0;
 
-	map[0][0] = half_height;
-	map[max_index][0] = half_height;
-	map[0][max_index] = half_height;
-	map[max_index][max_index] = half_height;
+	map[0][0] = 0.5;
+	map[max_index][0] = 0.5;
+	map[0][max_index] = 0.5;
+	map[max_index][max_index] = 0.5;
+
+	square(&mut map, max_index, center, center, max_index, chunk, noise);
+	diamond(&mut map, max_index, 0, center, max_index, chunk, noise);
+	diamond(&mut map, max_index, max_index, center, max_index, chunk, noise);
+	diamond(&mut map, max_index, center, 0, max_index, chunk, noise);
+	diamond(&mut map, max_index, center, max_index, max_index, chunk, noise);
 
 	while 1 <= chunk {
 		for x in (half_chunk..map_size).step_by(chunk) {
 			for y in (half_chunk..map_size).step_by(chunk) {
-				square(&mut map, map_size, x ,y, chunk, half_chunk, 20.0);
+				if (map[x][y]).is_nan() {
+					square(
+						&mut map,
+						max_index,
+						x,
+						y,
+						chunk,
+						half_chunk,
+						noise
+					);
 
-				if !first {
-					// println!("x: {}, y: {}, h: {}", x, y, map[x][y]);
+					diamond(
+						&mut map,
+						max_index,
+						x + half_chunk,
+						y,
+						chunk,
+						half_chunk,
+						noise
+					);
 
-					first = true;
+					diamond(
+						&mut map,
+						max_index,
+						x - half_chunk,
+						y,
+						chunk,
+						half_chunk,
+						noise
+					);
+
+					diamond(
+						&mut map,
+						max_index,
+						x,
+						y + half_chunk,
+						chunk,
+						half_chunk,
+						noise
+					);
+
+					diamond(
+						&mut map,
+						max_index,
+						x,
+						y - half_chunk,
+						chunk,
+						half_chunk,
+						noise
+					);
 				}
+
 			}
 		}
 
-		// for x in (0..max_index).step_by(chunk) {
-		// 	for y in (half_chunk..max_index).step_by(chunk) {
-		// 		diamond(&mut map, map_size, x, y, chunk, half_chunk, 20.0);
-		// 	}
-		// }
-
-		// for x in (chunk..max_index).step_by(chunk) {
-		// 	for y in (0..max_index).step_by(chunk) {
-		// 		diamond(&mut map, map_size, x, y, chunk, half_chunk, 20.0);
-		// 	}
-		// }
-
 		chunk >>= 1;
 		half_chunk >>= 1;
+		noise /= 2.0;
 	}
 
 	map

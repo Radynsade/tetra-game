@@ -25,44 +25,6 @@
 			"args": [],
 			"cwd": "${workspaceFolder}",
 			"console": "externalTerminal"
-		},
-		// {
-		// 	"type": "lldb",
-		// 	"request": "launch",
-		// 	"name": "Debug executable 'tetra'",
-		// 	"cargo": {
-		// 		"args": [
-		// 			"build",
-		// 			"--bin=tetra",
-		// 			"--package=tetra"
-		// 		],
-		// 		"filter": {
-		// 			"name": "tetra",
-		// 			"kind": "bin"
-		// 		}
-		// 	},
-		// 	"args": [],
-		// 	"cwd": "${workspaceFolder}",
-		// 	"externalConsole": true
-		// },
-		// {
-		// 	"type": "lldb",
-		// 	"request": "launch",
-		// 	"name": "Debug unit tests in executable 'tetra'",
-		// 	"cargo": {
-		// 		"args": [
-		// 			"test",
-		// 			"--no-run",
-		// 			"--bin=tetra",
-		// 			"--package=tetra"
-		// 		],
-		// 		"filter": {
-		// 			"name": "tetra",
-		// 			"kind": "bin"
-		// 		}
-		// 	},
-		// 	"args": [],
-		// 	"cwd": "${workspaceFolder}"
-		// }
+		}
 	]
 }
