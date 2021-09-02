@@ -1,4 +1,5 @@
 use image;
+use colored::*;
 
 mod diamond;
 mod perlin;
@@ -25,6 +26,20 @@ impl HeightMap {
 		}
 
 		image
+	}
+
+	pub fn print(&self) {
+		let mut height: u8;
+
+		for x in 0..self.width {
+			for y in 0..self.height {
+				height = self.matrix[x][y] as u8;
+
+				print!("{}", "██".truecolor(height, height, height));
+			}
+
+			println!("");
+		}
 	}
 }
 

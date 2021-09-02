@@ -1,17 +1,51 @@
 mod hmap;
 
-const MAP_WIDTH: usize = 400;
-const MAP_HEIGHT: usize = 400;
+use text_io::read;
+use std::io::{self, Write};
+
 const IMAGE_FILE: &str = "heightmap.png";
 
 fn main() {
-	println!("Diamond-square algorithm used.");
+	let mut map: hmap::HeightMap;
+	let mut width: usize;
+	let mut height: usize;
+	let mut operation: u8;
+	let mut repeat: char;
 
-	let map: hmap::HeightMap = hmap::generate(
-		MAP_WIDTH,
-		MAP_HEIGHT,
-		hmap::Algorithm::DiamondSquare
-	);
+	loop {
+		print!("Enter map width: ");
+		io::stdout().flush().unwrap();
+		width = read!();
 
-	map.as_image().save(IMAGE_FILE).unwrap();
+		print!("Enter map height: ");
+		io::stdout().flush().unwrap();
+		height = read!();
+
+		println!("Generating...");
+		map = hmap::generate(
+			width,
+			height,
+			hmap::Algorithm::DiamondSquare
+		);
+		println!("Completed.");
+
+		print!("Possible operations:\n1) Print in console;\n2) Save as image.\n");
+		print!("Enter operation number: ");
+		io::stdout().flush().unwrap();
+		operation = read!();
+
+		match operation {
+			1 => map.print(),
+			2 => map.as_image().save(IMAGE_FILE).unwrap(),
+			_ => std::process::exit(1)
+		}
+
+		print!("Repeat? (y/n): ");
+		io::stdout().flush().unwrap();
+		repeat = read!();
+
+		if repeat == 'n' {
+			std::process::exit(1);
+		}
+	}
 }
