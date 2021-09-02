@@ -4,7 +4,9 @@ use colored::*;
 mod diamond;
 mod perlin;
 
-const MAX_HEIGHT: f64 = 765.0;
+// 255x4 = 1020 - max combination of colours.
+// 1020 - 100x3 = 720 - with min color brightness.
+const MAX_HEIGHT: f64 = 1020.0;
 const MAX_COLOR: f64 = 255.0;
 
 pub struct HeightMap {
@@ -12,6 +14,9 @@ pub struct HeightMap {
 	width: usize,
 	height: usize
 }
+
+// Colorized output
+// Min color: 110;
 
 impl HeightMap {
 	pub fn as_image(&self) -> image::ImageBuffer<image::Rgb<u8>, Vec<u8>> {
@@ -29,21 +34,40 @@ impl HeightMap {
 			height = self.matrix[x as usize][y as usize] * MAX_HEIGHT;
 
 			blue = if height > MAX_COLOR {
-				255
+				if height / MAX_COLOR >= 2.0 {
+					0
+				} else {
+					255 - ((height % MAX_COLOR) as u8)
+				}
 			} else {
 				height as u8
 			};
-			height -= MAX_COLOR;
 
-			green = if height > MAX_COLOR {
-				255
-			} else {
-				height as u8
-			};
 			height -= MAX_COLOR;
 			if height < 0.0 { height = 0.0 };
 
-			red = height as u8;
+			green = if height > MAX_COLOR {
+				if height / MAX_COLOR >= 2.0 {
+					0
+				} else {
+					255 - ((height % MAX_COLOR) as u8)
+				}
+			} else {
+				height as u8
+			};
+
+			height -= MAX_COLOR;
+			if height < 0.0 { height = 0.0 };
+
+			red = if height > MAX_COLOR {
+				if height / MAX_COLOR >= 2.0 {
+					0
+				} else {
+					255 - ((height % MAX_COLOR) as u8)
+				}
+			} else {
+				height as u8
+			};
 
 			*pixel = image::Rgb([red, green, blue]);
 		}
