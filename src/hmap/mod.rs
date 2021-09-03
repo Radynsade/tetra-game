@@ -4,6 +4,7 @@ use colored::*;
 mod diamond;
 mod perlin;
 mod generator;
+mod render;
 
 // 255x4 = 1020 - max combination of colours.
 // 1020 - 100x3 = 720 - with min color brightness.
@@ -23,49 +24,8 @@ impl HeightMap {
 			self.height as u32
 		);
 
-		let mut height: f64;
-		let mut blue: u8;
-		let mut green: u8;
-		let mut red: u8;
-
 		for (x, y, pixel) in image.enumerate_pixels_mut() {
-			height = self.matrix[x as usize][y as usize] * MAX_HEIGHT;
-
-			blue = if height > MAX_COLOR {
-				if height / MAX_COLOR >= 2.0 {
-					0
-				} else {
-					255 - ((height % MAX_COLOR) as u8)
-				}
-			} else {
-				height as u8
-			};
-
-			height -= MAX_COLOR;
-			if height < 0.0 { height = 0.0 };
-
-			green = if height > MAX_COLOR {
-				if height / MAX_COLOR >= 2.0 {
-					0
-				} else {
-					255 - ((height % MAX_COLOR) as u8)
-				}
-			} else {
-				height as u8
-			};
-
-			height -= MAX_COLOR;
-			if height < 0.0 { height = 0.0 };
-
-			red = if height > MAX_COLOR {
-				if height / MAX_COLOR >= 2.0 {
-					0
-				} else {
-					255 - ((height % MAX_COLOR) as u8)
-				}
-			} else {
-				height as u8
-			};
+			let (red, green, blue) = render::smooth(self.matrix[x as usize][y as usize]);
 
 			*pixel = image::Rgb([red, green, blue]);
 		}
