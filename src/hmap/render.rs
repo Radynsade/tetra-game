@@ -102,3 +102,56 @@ pub fn smooth(height: f64) -> (u8, u8, u8) {
 
 	(red, green, blue)
 }
+
+pub fn smooth_2(height: f64) -> (u8, u8, u8) {
+	let mut h = height * MAX_SMOOTH;
+	let mut division: f64;
+	let red: u8;
+	let green: u8;
+	let blue: u8;
+
+	blue = if h > MAX_COLOR {
+		division = h / MAX_COLOR;
+
+		if division >= 3.0 {
+			// We need changes here.
+			// There is a case, when it's not zero.
+			// Because of this error there is a sharp changes.
+			0
+		} else {
+			if division < 2.0 {
+				255
+			} else {
+				255 - ((h % MAX_COLOR) as u8)
+			}
+		}
+	} else {
+		h as u8
+	};
+
+	h -= MAX_COLOR;
+	if h < 0.0 { h = 0.0 };
+
+	green = if h > MAX_COLOR {
+		division = h / MAX_COLOR;
+
+		if division >= 3.0 {
+			0
+		} else {
+			if division < 2.0 {
+				255
+			} else {
+				255 - ((h % MAX_COLOR) as u8)
+			}
+		}
+	} else {
+		h as u8
+	};
+
+	h -= MAX_COLOR;
+	if h < 0.0 { h = 0.0 };
+
+	red = h as u8;
+
+	(red, green, blue)
+}
