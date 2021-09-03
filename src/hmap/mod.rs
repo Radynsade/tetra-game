@@ -3,6 +3,7 @@ use colored::*;
 
 mod diamond;
 mod perlin;
+mod generator;
 
 // 255x4 = 1020 - max combination of colours.
 // 1020 - 100x3 = 720 - with min color brightness.
