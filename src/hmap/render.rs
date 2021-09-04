@@ -67,7 +67,7 @@ pub fn smooth(height: f64) -> (u8, u8, u8) {
 	wholes = division.floor() as usize;
 
 	if wholes == 5 {
-		return (0, 0, 255);
+		return (255, 0, 0);
 	}
 
 	for i in 0..wholes {
