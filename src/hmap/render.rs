@@ -106,6 +106,7 @@ pub fn smooth(height: f64) -> (u8, u8, u8) {
 pub fn smooth_2(height: f64) -> (u8, u8, u8) {
 	let mut h = height * MAX_SMOOTH;
 	let mut division: f64;
+	let mut remainder: u8;
 	let red: u8;
 	let green: u8;
 	let blue: u8;
@@ -114,15 +115,14 @@ pub fn smooth_2(height: f64) -> (u8, u8, u8) {
 		division = h / MAX_COLOR;
 
 		if division >= 3.0 {
-			// We need changes here.
-			// There is a case, when it's not zero.
-			// Because of this error there is a sharp changes.
 			0
 		} else {
 			if division < 2.0 {
 				255
 			} else {
-				255 - ((h % MAX_COLOR) as u8)
+				remainder = 255 - ((h % MAX_COLOR) as u8);
+				h -= MAX_COLOR;
+				remainder
 			}
 		}
 	} else {
@@ -141,7 +141,9 @@ pub fn smooth_2(height: f64) -> (u8, u8, u8) {
 			if division < 2.0 {
 				255
 			} else {
-				255 - ((h % MAX_COLOR) as u8)
+				remainder = 255 - ((h % MAX_COLOR) as u8);
+				h -= MAX_COLOR;
+				remainder
 			}
 		}
 	} else {

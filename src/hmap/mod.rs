@@ -36,7 +36,7 @@ impl HeightMap {
 	pub fn print(&self) {
 		for x in 0..self.width {
 			for y in 0..self.height {
-				let (red, green, blue) = render::smooth(self.matrix[x as usize][y as usize]);
+				let (red, green, blue) = render::smooth_2(self.matrix[x as usize][y as usize]);
 
 				print!("{}", "██".truecolor(red, green, blue));
 			}
