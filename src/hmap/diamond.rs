@@ -149,12 +149,13 @@ fn diamond_square(map_size: usize) -> Vec<Vec<f64>> {
 	let mut half_chunk: usize = chunk >> 1;
 	let mut scale: f64 = 1.0;
 
-	map[0][0] = 0.5;
-	map[max_index][0] = 0.5;
-	map[0][max_index] = 0.5;
-	map[max_index][max_index] = 0.5;
+	map[0][0] = 0.0;
+	map[max_index][0] = 0.0;
+	map[0][max_index] = 0.0;
+	map[max_index][max_index] = 0.0;
+	map[center][center] = rand::random::<f64>();
 
-	square(&mut map, max_index, center, center, max_index, chunk, scale);
+	// square(&mut map, max_index, center, center, max_index, chunk, scale);
 	diamond(&mut map, max_index, 0, center, chunk, scale);
 	diamond(&mut map, max_index, max_index, center, chunk, scale);
 	diamond(&mut map, max_index, center, 0, chunk, scale);

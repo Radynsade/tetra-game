@@ -1,4 +1,4 @@
-const MAX_SMOOTH: f64 = 1275.0;
+const MAX_SMOOTH: f64 = 1375.0;
 const MAX_RGB: f64 = 1020.0;
 const MAX_COLOR: f64 = 255.0;
 
@@ -54,7 +54,7 @@ pub fn rgb(height: f64) -> (u8, u8, u8) {
 }
 
 pub fn smooth(height: f64) -> (u8, u8, u8) {
-	let mut parts: [u8; 5] = [0, 0, 0, 0, 0];
+	let mut parts: [u8; 6] = [0, 0, 0, 0, 0, 0];
 	let h = height * MAX_SMOOTH;
 	let division: f64;
 	let remainder: u8;
@@ -66,8 +66,8 @@ pub fn smooth(height: f64) -> (u8, u8, u8) {
 	division = h / MAX_COLOR;
 	wholes = division.floor() as usize;
 
-	if wholes == 5 {
-		return (255, 0, 0);
+	if wholes == 6 {
+		return (155, 0, 0);
 	}
 
 	for i in 0..wholes {
@@ -78,7 +78,7 @@ pub fn smooth(height: f64) -> (u8, u8, u8) {
 	parts[wholes] = remainder;
 	blue = parts[0] - parts[2];
 	green = parts[1] - parts[4];
-	red = parts[3];
+	red = parts[3] - parts[5];
 
 	(red, green, blue)
 }
