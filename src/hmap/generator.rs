@@ -1,7 +1,11 @@
+use rand::prelude::*;
+use rand_pcg::{Pcg64, Lcg128Xsl64};
+
 struct Generator {
 	width: usize,
 	height: usize,
 	seed: u64,
+	rng: Lcg128Xsl64,
 }
 
 impl Generator {
@@ -10,10 +14,13 @@ impl Generator {
 		height: usize,
 		seed: u64
 	) -> Generator {
+		let rng: Lcg128Xsl64 = Pcg64::seed_from_u64(seed);
+
 		Generator{
 			width,
 			height,
-			seed
+			seed,
+			rng
 		}
 	}
 
@@ -27,5 +34,13 @@ impl Generator {
 
 	pub fn height(&self) -> usize {
 		self.height
+	}
+
+	pub fn generate(&self) {
+		self.rng.
+	}
+
+	fn diamond_square(map_size: usize) -> Vec<Vec<f64>> {
+
 	}
 }
