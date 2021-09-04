@@ -54,106 +54,31 @@ pub fn rgb(height: f64) -> (u8, u8, u8) {
 }
 
 pub fn smooth(height: f64) -> (u8, u8, u8) {
-	let mut h = height * MAX_SMOOTH;
-	let mut division: f64;
+	let mut parts: [u8; 5] = [0, 0, 0, 0, 0];
+	let h = height * MAX_SMOOTH;
+	let division: f64;
+	let remainder: u8;
+	let wholes: usize;
 	let red: u8;
 	let green: u8;
 	let blue: u8;
 
-	blue = if h > MAX_COLOR {
-		division = h / MAX_COLOR;
+	division = h / MAX_COLOR;
+	wholes = division.floor() as usize;
 
-		if division >= 3.0 {
-			0
-		} else {
-			if division < 2.0 {
-				255
-			} else {
-				255 - ((h % MAX_COLOR) as u8)
-			}
-		}
-	} else {
-		h as u8
-	};
+	if wholes == 5 {
+		return (0, 0, 255);
+	}
 
-	h -= MAX_COLOR;
-	if h < 0.0 { h = 0.0 };
+	for i in 0..wholes {
+		parts[i] = 255;
+	}
 
-	green = if h > MAX_COLOR {
-		division = h / MAX_COLOR;
-
-		if division >= 3.0 {
-			0
-		} else {
-			if division < 2.0 {
-				255
-			} else {
-				255 - ((h % MAX_COLOR) as u8)
-			}
-		}
-	} else {
-		h as u8
-	};
-
-	h -= MAX_COLOR;
-	if h < 0.0 { h = 0.0 };
-
-	red = h as u8;
-
-	(red, green, blue)
-}
-
-pub fn smooth_2(height: f64) -> (u8, u8, u8) {
-	let mut h = height * MAX_SMOOTH;
-	let mut division: f64;
-	let mut remainder: u8;
-	let red: u8;
-	let green: u8;
-	let blue: u8;
-
-	blue = if h > MAX_COLOR {
-		division = h / MAX_COLOR;
-
-		if division >= 3.0 {
-			0
-		} else {
-			if division < 2.0 {
-				255
-			} else {
-				remainder = 255 - ((h % MAX_COLOR) as u8);
-				h -= MAX_COLOR;
-				remainder
-			}
-		}
-	} else {
-		h as u8
-	};
-
-	h -= MAX_COLOR;
-	if h < 0.0 { h = 0.0 };
-
-	green = if h > MAX_COLOR {
-		division = h / MAX_COLOR;
-
-		if division >= 3.0 {
-			0
-		} else {
-			if division < 2.0 {
-				255
-			} else {
-				remainder = 255 - ((h % MAX_COLOR) as u8);
-				h -= MAX_COLOR;
-				remainder
-			}
-		}
-	} else {
-		h as u8
-	};
-
-	h -= MAX_COLOR;
-	if h < 0.0 { h = 0.0 };
-
-	red = h as u8;
+	remainder = (h % MAX_COLOR) as u8;
+	parts[wholes] = remainder;
+	blue = parts[0] - parts[2];
+	green = parts[1] - parts[4];
+	red = parts[3];
 
 	(red, green, blue)
 }
