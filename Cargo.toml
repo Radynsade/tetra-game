@@ -1,8 +1,9 @@
 [package]
 name = "tetra"
-version = "0.1.0"
+version = "0.0.1"
 authors = ["radynje <radynje@gmail.com>"]
 edition = "2018"
+resolver = "2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -13,3 +14,8 @@ rand_pcg = "0.3.1"
 rand_chacha = "0.3.1"
 colored = "2.0.0"
 text_io = "0.1.9"
+winit = "0.25.0"
+wgpu = "0.10.1"
+
+[env]
+WGPU_BACKEND = "vulkan"

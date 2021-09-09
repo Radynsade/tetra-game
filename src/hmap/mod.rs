@@ -2,14 +2,8 @@ use image;
 use colored::*;
 
 mod diamond;
-mod perlin;
-mod generator;
+// mod generator;
 mod render;
-
-// 255x4 = 1020 - max combination of colours.
-// 1020 - 100x3 = 720 - with min color brightness.
-const MAX_HEIGHT: f64 = 1020.0;
-const MAX_COLOR: f64 = 255.0;
 
 pub struct HeightMap {
 	matrix: Vec<Vec<f64>>,
@@ -44,6 +38,18 @@ impl HeightMap {
 			println!("");
 		}
 	}
+
+	pub fn scale(&self, to: f64) -> Vec<Vec<u64>> {
+		let mut scaled_map: Vec<Vec<u64>> = vec![vec![0; self.height]; self.width];
+
+		for x in 0..self.width {
+			for y in 0..self.height {
+				scaled_map[x][y] = (self.matrix[x][y] * to) as u64;
+			}
+		}
+
+		return scaled_map;
+	}
 }
 
 /// Generation algorithms.
@@ -63,10 +69,7 @@ pub fn generate(
 			width,
 			height
 		),
-		Algorithm::Perlin => perlin::generate(
-			width,
-			height
-		)
+		Algorithm::Perlin => vec![vec![0.0; 10]; 10]
 	};
 
 	HeightMap {
